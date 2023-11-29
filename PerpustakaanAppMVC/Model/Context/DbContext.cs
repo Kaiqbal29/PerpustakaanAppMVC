@@ -1,47 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using System.Data;
-using System.Data.OleDb;
+using System.Data.SQLite;
 
 namespace PerpustakaanAppMVC.Model.Context
 {
     public class DbContext : IDisposable
     {
         // deklarasi private variabel / field
-        private OleDbConnection _conn;
+        private SQLiteConnection _conn;
+
         // deklarasi property Conn (connection), untuk menyimpan objek koneksi
-        public OleDbConnection Conn
+        public SQLiteConnection Conn
         {
             get { return _conn ?? (_conn = GetOpenConnection()); }
         }
+
         // Method untuk melakukan koneksi ke database
-        private OleDbConnection GetOpenConnection()
+        private SQLiteConnection GetOpenConnection()
         {
-            OleDbConnection conn = null; // deklarasi objek connection
+            SQLiteConnection conn = null; // deklarasi objek connection
+
             try // penggunaan blok try-catch untuk penanganan error
             {
                 // atur ulang lokasi database yang disesuaikan dengan
                 // lokasi database perpustakaan Anda
-                string dbName = @"D:\Database\DbPerpustakaan.mdb";
-            // deklarasi variabel connectionString, ref:
-            https://www.connectionstrings.com/
-                string connectionString =
-               string.Format("Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0}", dbName);
-                conn = new OleDbConnection(connectionString); // buat objek connection
-            conn.Open(); // buka koneksi ke database
+                string dbName = @"D:\Database\DbPerpustakaan.db";
+
+                // deklarasi variabel connectionString, ref: https://www.connectionstrings.com/
+                string connectionString = string.Format("Data Source={0};FailIfMissing=True", dbName);
+
+                conn = new SQLiteConnection(connectionString); // buat objek connection
+                conn.Open(); // buka koneksi ke database
             }
-            // jika terjadi error di blok try, akan ditangani langsung oleh blok catch 
+            // jika terjadi error di blok try, akan ditangani langsung oleh blok catch
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.Print("Open Connection Error: {0}",
-               ex.Message);
+                System.Diagnostics.Debug.Print("Open Connection Error: {0}", ex.Message);
             }
+
             return conn;
         }
+
         // Method ini digunakan untuk menghapus objek koneksi dari memory ketika sudah tidak digunakan
         public void Dispose()
         {
@@ -56,8 +55,8 @@ namespace PerpustakaanAppMVC.Model.Context
                     _conn.Dispose();
                 }
             }
+
             GC.SuppressFinalize(this);
         }
-
     }
 }
